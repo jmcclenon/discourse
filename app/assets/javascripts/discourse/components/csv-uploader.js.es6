@@ -6,9 +6,15 @@ export default Em.Component.extend(UploadMixin, {
   tagName: "span",
   uploadUrl: "/invites/upload_csv",
 
+  validateUploadedFilesOptions() {
+    return { csvOnly: true };
+  },
+
   @computed("uploading")
   uploadButtonText(uploading) {
-    return uploading ? I18n.t("uploading") : I18n.t("user.invited.bulk_invite.text");
+    return uploading
+      ? I18n.t("uploading")
+      : I18n.t("user.invited.bulk_invite.text");
   },
 
   @computed("uploading")

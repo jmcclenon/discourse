@@ -1,4 +1,5 @@
 class GroupActionLogger
+
   def initialize(acting_user, group)
     @acting_user = acting_user
     @group = group
@@ -23,7 +24,7 @@ class GroupActionLogger
   end
 
   def log_add_user_to_group(target_user)
-    @group.public || can_edit?
+    (target_user == @acting_user && @group.public_admission) || can_edit?
 
     GroupHistory.create!(default_params.merge(
       action: GroupHistory.actions[:add_user_to_group],
@@ -32,7 +33,7 @@ class GroupActionLogger
   end
 
   def log_remove_user_from_group(target_user)
-    @group.public || can_edit?
+    (target_user == @acting_user && @group.public_exit) || can_edit?
 
     GroupHistory.create!(default_params.merge(
       action: GroupHistory.actions[:remove_user_from_group],
@@ -71,8 +72,7 @@ class GroupActionLogger
   end
 
   def can_edit?
-    unless Guardian.new(@acting_user).can_log_group_changes?(@group)
-      raise Discourse::InvalidParameter
-    end
+    raise Discourse::InvalidParameters.new unless Guardian.new(@acting_user).can_log_group_changes?(@group)
   end
+
 end
